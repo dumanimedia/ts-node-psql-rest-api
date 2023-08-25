@@ -7,7 +7,7 @@
   "private": false,
   "type": "module",
   "scripts": {
-    "dev": "nodemon server/index.js"
+    "dev": "concurrently \"tsc -w\" \"nodemon server/index.js\""
   },
   "keywords": [],
   "dependencies": {
