@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
+import bcrypt from 'bcryptjs';
+
 import { prisma } from '../lib/prismaDb.js';
 import { generateToken } from '../lib/generateToken.js';
 
@@ -12,13 +14,18 @@ const fetchAllUsers = asyncHandler(async (req: Request, res: Response) => {
     take: limit,
     skip: (page - 1) * limit,
   });
-  const pageCount = Math.floor(usersCount / limit);
+  const pageCount = Math.ceil(usersCount / limit);
 
   res.json({ usersCount, users, pageCount });
 });
 
 const signUpAUser = asyncHandler(async (req: Request, res: Response) => {
   const { email, username, password } = req.body;
+
+  if (!email || !username || !password) {
+    res.status(401);
+    throw new Error('All fields are required!');
+  }
 
   const user =
     (await prisma.user.findUnique({ where: { email } })) ||
@@ -30,10 +37,16 @@ const signUpAUser = asyncHandler(async (req: Request, res: Response) => {
   }
 
   try {
-    // user not found in the database at this moment
-    // Catch block step handled
-    // Next step hash the password then create a user to postgresql via prisma
-    // NOTE: First add a check for username, password and email.
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = await prisma.user.create({
+      data: { email, username, password: hashedPassword },
+    });
+
+    generateToken(res, { id: newUser.id });
+
+    res.status(201).json({ user: newUser });
   } catch (err: unknown) {
     res.status(400);
     throw new Error((err as Error).message);
@@ -41,7 +54,34 @@ const signUpAUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const signInAUser = asyncHandler(async (req: Request, res: Response) => {
-  res.json('Route for authenticating a user');
+  const { login, password } = req.body;
+
+  if (!login || !password) {
+    res.status(400);
+    throw new Error('All fields are required!');
+  }
+
+  const user =
+    (await prisma.user.findUnique({ where: { email: login } })) ||
+    (await prisma.user.findUnique({ where: { username: login } }));
+
+  if (!user) {
+    res.status(404);
+    throw new Error('Invalid user credentials!');
+  }
+
+  const passwordsMatch = await bcrypt.compare(password, user.password);
+  if (passwordsMatch === false) {
+    res.status(400);
+    throw new Error('Invalid user credentials!');
+  }
+  try {
+    generateToken(res, { id: user.id });
+
+    res.status(200).json({ user: user });
+  } catch (err: unknown) {
+    throw new Error((err as Error).message);
+  }
 });
 
 const signOutAUser = asyncHandler(async (req: Request, res: Response) => {

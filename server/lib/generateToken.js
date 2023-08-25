@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
-const SECRET_KEY = process.env.JWT_SECRET;
-export function generateToken(userId, res) {
-    const token = jwt.sign(userId, SECRET_KEY, {
+export const generateToken = (res, userInfo) => {
+    let token = jwt.sign({ ...userInfo }, process.env.JWT_SECRET, {
         expiresIn: '3d',
     });
     res.cookie('ts-node', token, {
@@ -10,5 +9,5 @@ export function generateToken(userId, res) {
         sameSite: true,
         maxAge: 3 * 24 * 60 * 60 * 1000,
     });
-}
+};
 //# sourceMappingURL=generateToken.js.map
