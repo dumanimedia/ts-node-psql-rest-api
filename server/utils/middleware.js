@@ -28,4 +28,3 @@ const loginRequired = asyncHandler(async (req, res, next) => {
     next();
 });
 export { notFound, errorHandler, loginRequired };
-//# sourceMappingURL=middleware.js.map

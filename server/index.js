@@ -17,4 +17,3 @@ server.use('/api/authors/', authorRoutes);
 server.use(notFound);
 server.use(errorHandler);
 server.listen(Number(PORT), () => console.log(`Server 🚀 on port ${PORT}!`));
-//# sourceMappingURL=index.js.map

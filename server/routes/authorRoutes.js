@@ -6,4 +6,3 @@ router.get('/', fetchAllAuthors);
 router.get('/:authorId', getAuthorById);
 router.post('/new', loginRequired, becomeAnAuthor);
 export default router;
-//# sourceMappingURL=authorRoutes.js.map

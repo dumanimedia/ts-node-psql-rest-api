@@ -11,4 +11,3 @@ router
     .patch(loginRequired, updateAUserById)
     .delete(loginRequired, deleteAUserById);
 export default router;
-//# sourceMappingURL=userRoutes.js.map

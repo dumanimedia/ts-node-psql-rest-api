@@ -5,8 +5,7 @@
     "target": "esNext",
     "skipLibCheck": true,
     "outDir": "server",
-    "rootDir": "src",
-    "sourceMap": true
+    "rootDir": "src"
   },
   "include": ["src/**/*"]
 }

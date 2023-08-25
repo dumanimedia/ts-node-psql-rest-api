@@ -132,4 +132,3 @@ const deleteAUserById = asyncHandler(async (req, res) => {
     }
 });
 export { fetchAllUsers, signUpAUser, signInAUser, signOutAUser, getAUserById, updateAUserById, deleteAUserById, };
-//# sourceMappingURL=userController.js.map

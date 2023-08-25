@@ -44,4 +44,3 @@ const becomeAnAuthor = asyncHandler(async (req, res) => {
     res.json({ updatedUser });
 });
 export { fetchAllAuthors, getAuthorById, becomeAnAuthor };
-//# sourceMappingURL=authorController.js.map

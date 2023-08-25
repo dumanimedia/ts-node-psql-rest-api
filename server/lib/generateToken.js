@@ -10,4 +10,3 @@ export const generateToken = (res, userInfo) => {
         maxAge: 3 * 24 * 60 * 60 * 1000,
     });
 };
-//# sourceMappingURL=generateToken.js.map
