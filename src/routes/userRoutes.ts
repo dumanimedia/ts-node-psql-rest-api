@@ -9,16 +9,17 @@ import {
   updateAUserById,
   deleteAUserById,
 } from '../controllers/userController.js';
+import { loginRequired } from '../utils/middleware.js';
 
 const router = express.Router();
 
-router.route('/').get(fetchAllUsers).post(signUpAUser);
+router.route('/').get(loginRequired, fetchAllUsers).post(signUpAUser);
 router.post('/login/', signInAUser);
-router.post('/logout/', signOutAUser);
+router.post('/logout/', loginRequired, signOutAUser);
 router
   .route('/profile')
-  .get(getAUserById)
-  .patch(updateAUserById)
-  .delete(deleteAUserById);
+  .get(loginRequired, getAUserById)
+  .patch(loginRequired, updateAUserById)
+  .delete(loginRequired, deleteAUserById);
 
 export default router;

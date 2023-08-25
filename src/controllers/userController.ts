@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcryptjs';
 
 import { prisma } from '../lib/prismaDb.js';
 import { generateToken } from '../lib/generateToken.js';
+import { CustomReq } from '../utils/types.js';
 
 const fetchAllUsers = asyncHandler(async (req: Request, res: Response) => {
   const page = req.query['page'] ? Number(req.query['page']) : 1;
@@ -13,6 +14,14 @@ const fetchAllUsers = asyncHandler(async (req: Request, res: Response) => {
   const users = await prisma.user.findMany({
     take: limit,
     skip: (page - 1) * limit,
+    select: {
+      firstName: true,
+      lastName: true,
+      maidenName: true,
+      username: true,
+      email: true,
+      blogger: true,
+    },
   });
   const pageCount = Math.ceil(usersCount / limit);
 
@@ -37,7 +46,7 @@ const signUpAUser = asyncHandler(async (req: Request, res: Response) => {
   }
 
   try {
-    const salt = await bcrypt.genSalt(12);
+    const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = await prisma.user.create({
@@ -85,19 +94,74 @@ const signInAUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const signOutAUser = asyncHandler(async (req: Request, res: Response) => {
-  res.json('Route for logging out a user');
+  res
+    .cookie('ts-node', '', { httpOnly: true, maxAge: 0 })
+    .json({ message: 'logout successful' });
 });
 
 const getAUserById = asyncHandler(async (req: Request, res: Response) => {
-  res.json('Route for getting A User By Id');
+  const userId = (req as CustomReq).userId;
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user) {
+    res.status(400);
+    throw new Error('User not found!');
+  }
+
+  res.json({ user });
 });
 
 const updateAUserById = asyncHandler(async (req: Request, res: Response) => {
-  res.json('Route for updating A User By Id');
+  const userId = (req as CustomReq).userId;
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user) {
+    res.status(400);
+    throw new Error('User not found!');
+  }
+
+  try {
+    let updateInfo: Partial<typeof user> = {};
+    updateInfo.firstName = req.body.firstName || updateInfo.firstName;
+    updateInfo.lastName = req.body.lastName || updateInfo.lastName;
+    updateInfo.maidenName = req.body.maidenName || updateInfo.maidenName;
+    updateInfo.age = req.body.age || updateInfo.age;
+
+    if (req.body.password) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(req.body.password, salt);
+      updateInfo.password = req.body.password
+        ? hashedPassword
+        : updateInfo.password;
+    }
+
+    let updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { ...updateInfo },
+    });
+
+    res.status(200).json({ user: updatedUser });
+  } catch (err: unknown) {
+    throw new Error((err as Error).message);
+  }
 });
 
 const deleteAUserById = asyncHandler(async (req: Request, res: Response) => {
-  res.json('Route for deleting A User By Id');
+  const userId = (req as CustomReq).userId;
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user) {
+    res.status(400);
+    throw new Error('User not found!');
+  }
+
+  try {
+    await prisma.user.delete({ where: { id: userId } });
+
+    res.json({ message: 'User deletion successful!' });
+  } catch (err: unknown) {
+    throw new Error((err as Error).message);
+  }
 });
 
 export {
