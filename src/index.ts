@@ -6,6 +6,7 @@ dotenv.config();
 
 import { notFound, errorHandler } from './utils/middleware.js';
 import userRoutes from './routes/userRoutes.js';
+import authorRoutes from './routes/authorRoutes.js';
 
 const server = express();
 const PORT = process.env.PORT ?? 8080;
@@ -16,6 +17,7 @@ server.use(cookieParser());
 server.use(cors());
 
 server.use('/api/users/', userRoutes);
+server.use('/api/authors/', authorRoutes);
 
 server.use(notFound);
 server.use(errorHandler);

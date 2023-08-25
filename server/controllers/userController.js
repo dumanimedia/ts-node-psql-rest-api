@@ -15,7 +15,7 @@ const fetchAllUsers = asyncHandler(async (req, res) => {
             maidenName: true,
             username: true,
             email: true,
-            blogger: true,
+            author: true,
         },
     });
     const pageCount = Math.ceil(usersCount / limit);

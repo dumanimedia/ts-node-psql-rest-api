@@ -16,13 +16,13 @@ model User {
   lastName   String?   @default("")
   maidenName String?   @default("")
   age        Int?
-  blogger    Blogger?
+  author     Author?
   comments   Comment[]
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 }
 
-model Blogger {
+model Author {
   id        String   @id @unique @default(cuid())
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -37,8 +37,8 @@ model Post {
   title       String
   description String
   comments    Comment[]
-  bloggerId   String
-  blogger     Blogger   @relation(fields: [bloggerId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      Author    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
