@@ -15,7 +15,11 @@ const fetchAllUsers = asyncHandler(async (req, res) => {
             maidenName: true,
             username: true,
             email: true,
-            author: true,
+            author: {
+                select: {
+                    id: true,
+                },
+            },
         },
     });
     const pageCount = Math.ceil(usersCount / limit);
@@ -38,6 +42,7 @@ const signUpAUser = asyncHandler(async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
         const newUser = await prisma.user.create({
             data: { email, username, password: hashedPassword },
+            include: { author: { select: { id: true } } },
         });
         generateToken(res, { id: newUser.id });
         res.status(201).json({ user: newUser });
@@ -53,8 +58,14 @@ const signInAUser = asyncHandler(async (req, res) => {
         res.status(400);
         throw new Error('All fields are required!');
     }
-    const user = (await prisma.user.findUnique({ where: { email: login } })) ||
-        (await prisma.user.findUnique({ where: { username: login } }));
+    const user = (await prisma.user.findUnique({
+        where: { email: login },
+        include: { author: { select: { id: true } } },
+    })) ||
+        (await prisma.user.findUnique({
+            where: { username: login },
+            include: { author: { select: { id: true } } },
+        }));
     if (!user) {
         res.status(404);
         throw new Error('Invalid user credentials!');
@@ -79,7 +90,23 @@ const signOutAUser = asyncHandler(async (req, res) => {
 });
 const getAUserById = asyncHandler(async (req, res) => {
     const userId = req.userId;
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+            id: true,
+            username: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            maidenName: true,
+            age: true,
+            author: {
+                select: {
+                    id: true,
+                },
+            },
+        },
+    });
     if (!user) {
         res.status(400);
         throw new Error('User not found!');

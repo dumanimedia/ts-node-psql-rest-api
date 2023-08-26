@@ -20,7 +20,11 @@ const fetchAllUsers = asyncHandler(async (req: Request, res: Response) => {
       maidenName: true,
       username: true,
       email: true,
-      author: true,
+      author: {
+        select: {
+          id: true,
+        },
+      },
     },
   });
   const pageCount = Math.ceil(usersCount / limit);
@@ -51,6 +55,7 @@ const signUpAUser = asyncHandler(async (req: Request, res: Response) => {
 
     const newUser = await prisma.user.create({
       data: { email, username, password: hashedPassword },
+      include: { author: { select: { id: true } } },
     });
 
     generateToken(res, { id: newUser.id });
@@ -71,8 +76,14 @@ const signInAUser = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const user =
-    (await prisma.user.findUnique({ where: { email: login } })) ||
-    (await prisma.user.findUnique({ where: { username: login } }));
+    (await prisma.user.findUnique({
+      where: { email: login },
+      include: { author: { select: { id: true } } },
+    })) ||
+    (await prisma.user.findUnique({
+      where: { username: login },
+      include: { author: { select: { id: true } } },
+    }));
 
   if (!user) {
     res.status(404);
@@ -101,7 +112,23 @@ const signOutAUser = asyncHandler(async (req: Request, res: Response) => {
 
 const getAUserById = asyncHandler(async (req: Request, res: Response) => {
   const userId = (req as CustomReq).userId;
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      maidenName: true,
+      age: true,
+      author: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
 
   if (!user) {
     res.status(400);

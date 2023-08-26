@@ -13,7 +13,10 @@ const fetchAllAuthors = asyncHandler(async (req, res) => {
 });
 const getAuthorById = asyncHandler(async (req, res) => {
     const authorId = req.params['authorId'];
-    const author = await prisma.author.findUnique({ where: { id: authorId } });
+    const author = await prisma.author.findUnique({
+        where: { id: authorId },
+        include: { user: { select: { username: true } } },
+    });
     if (!author) {
         res.status(404);
         throw new Error(`Author not found!`);
@@ -37,10 +40,11 @@ const becomeAnAuthor = asyncHandler(async (req, res) => {
         res.status(400);
         throw new Error('User not found!');
     }
-    const updatedUser = await prisma.user.update({
+    const { author } = await prisma.user.update({
         where: { id: userId },
         data: { author: { create: { bio } } },
+        select: { author: true },
     });
-    res.json({ updatedUser });
+    res.json({ author });
 });
 export { fetchAllAuthors, getAuthorById, becomeAnAuthor };

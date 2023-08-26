@@ -34,7 +34,7 @@ model Author {
 
 model Post {
   id          String    @id @unique @default(cuid())
-  title       String
+  title       String    @unique
   description String
   comments    Comment[]
   authorId    String
@@ -45,6 +45,7 @@ model Post {
 
 model Comment {
   id        String   @id @unique @default(cuid())
+  message   String   @unique
   userId    String   @unique
   postId    String   @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
