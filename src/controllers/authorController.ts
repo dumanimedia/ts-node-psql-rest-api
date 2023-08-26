@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import { prisma } from '../lib/prismaDb.js';
-import { CustomReq } from '../utils/types.js';
+import { CustomUserReq } from '../utils/types.js';
 
 const fetchAllAuthors = asyncHandler(async (req: Request, res: Response) => {
   const page = req.query['page'] ? Number(req.query['page']) : 1;
@@ -37,7 +37,7 @@ const getAuthorById = asyncHandler(async (req: Request, res: Response) => {
 
 const becomeAnAuthor = asyncHandler(async (req: Request, res: Response) => {
   const { bio } = req.body;
-  const userId = (req as CustomReq).userId;
+  const userId = (req as CustomUserReq).userId;
 
   const alreadyAnAuthor = await prisma.author.findFirst({ where: { userId } });
   if (alreadyAnAuthor) {

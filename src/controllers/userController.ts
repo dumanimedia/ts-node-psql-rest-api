@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 
 import { prisma } from '../lib/prismaDb.js';
 import { generateToken } from '../lib/generateToken.js';
-import { CustomReq } from '../utils/types.js';
+import { CustomUserReq } from '../utils/types.js';
 
 const fetchAllUsers = asyncHandler(async (req: Request, res: Response) => {
   const page = req.query['page'] ? Number(req.query['page']) : 1;
@@ -111,7 +111,7 @@ const signOutAUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const getAUserById = asyncHandler(async (req: Request, res: Response) => {
-  const userId = (req as CustomReq).userId;
+  const userId = (req as CustomUserReq).userId;
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -139,7 +139,7 @@ const getAUserById = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const updateAUserById = asyncHandler(async (req: Request, res: Response) => {
-  const userId = (req as CustomReq).userId;
+  const userId = (req as CustomUserReq).userId;
   const user = await prisma.user.findUnique({ where: { id: userId } });
 
   if (!user) {
@@ -174,7 +174,7 @@ const updateAUserById = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const deleteAUserById = asyncHandler(async (req: Request, res: Response) => {
-  const userId = (req as CustomReq).userId;
+  const userId = (req as CustomUserReq).userId;
   const user = await prisma.user.findUnique({ where: { id: userId } });
 
   if (!user) {
