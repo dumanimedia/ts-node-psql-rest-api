@@ -5,9 +5,10 @@ import cors from 'cors';
 dotenv.config();
 
 import { notFound, errorHandler } from './utils/middleware.js';
-import userRoutes from './routes/userRoutes.js';
-import authorRoutes from './routes/authorRoutes.js';
-import postRoutes from './routes/postRoutes.js';
+
+import userRoutes from './routes/users.js';
+import authorRoutes from './routes/authors.js';
+import postRoutes from './routes/posts.js';
 
 const server = express();
 const PORT = process.env.PORT ?? 8080;

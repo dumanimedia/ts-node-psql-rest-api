@@ -6,7 +6,7 @@ import {
   createAPost,
   updateAPost,
   deleteAPost,
-} from '../controllers/postController.js';
+} from '../controllers/posts.js';
 import {
   loginRequired,
   isStaffMember,

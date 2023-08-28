@@ -8,7 +8,7 @@ import {
   getAUserById,
   updateAUserById,
   deleteAUserById,
-} from '../controllers/userController.js';
+} from '../controllers/users.js';
 import { loginRequired } from '../utils/middleware.js';
 
 const router = express.Router();

@@ -3,7 +3,7 @@ import {
   fetchAllAuthors,
   getAuthorById,
   becomeAnAuthor,
-} from '../controllers/authorController.js';
+} from '../controllers/authors.js';
 import { loginRequired } from '../utils/middleware.js';
 
 const router = express.Router();
