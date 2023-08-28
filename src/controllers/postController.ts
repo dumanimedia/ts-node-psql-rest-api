@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import { prisma } from '../lib/prismaDb.js';
-import { CustomAuthorReq } from '../utils/types.js';
+import { CustomAuthorReq, PostReq } from '../utils/types.js';
 
 const fetchAllPosts = asyncHandler(async (req: Request, res: Response) => {
   const page = req.query['page'] ? Number(req.query['page']) : 1;
@@ -66,26 +66,7 @@ const createAPost = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const updateAPost = asyncHandler(async (req: Request, res: Response) => {
-  const authorId = (req as CustomAuthorReq).authorId;
-  const postId = req.params['postId'];
-  const { title, description } = req.body;
-
-  const post = await prisma.post.findUnique({ where: { id: postId } });
-
-  if (!post) {
-    res.status(404);
-    throw new Error('Post not Found in the Database!');
-  }
-
-  const author = await prisma.author.findUnique({
-    where: { id: authorId },
-    select: { id: true },
-  });
-
-  if (post.authorId !== author.id) {
-    res.status(401);
-    throw new Error('You are not the creator of the post');
-  }
+  const post = (req as PostReq).post;
 
   type Post = Partial<
     Omit<typeof post, 'authorId' | 'createdAt' | 'updatedAt' | 'id'>
@@ -97,7 +78,7 @@ const updateAPost = asyncHandler(async (req: Request, res: Response) => {
 
   try {
     const updatedPost = await prisma.post.update({
-      where: { id: postId },
+      where: { id: post.id },
       data: updateInfo,
     });
 
@@ -107,4 +88,15 @@ const updateAPost = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
-export { fetchAllPosts, getPostById, createAPost, updateAPost };
+const deleteAPost = asyncHandler(async (req: Request, res: Response) => {
+  const post = (req as PostReq).post;
+
+  try {
+    await prisma.post.delete({ where: { id: post.id } });
+    res.json({ message: 'Delete Successful' });
+  } catch (err) {
+    throw new Error((err as Error).message);
+  }
+});
+
+export { fetchAllPosts, getPostById, createAPost, updateAPost, deleteAPost };

@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import asyncHandler from 'express-async-handler';
-import jwt from 'jsonwebtoken';
+import { verifyToken } from '../utils/helpers.js';
 
 import {
   CustomUserReq,
   CustomAuthorReq,
   NewJwtPayload,
+  PostReq,
 } from '../utils/types.js';
 import { prisma } from '../lib/prismaDb.js';
 
@@ -41,7 +42,8 @@ const loginRequired = asyncHandler(
       throw new Error('Not authorized, No token!');
     }
 
-    const verified = jwt.verify(token, process.env.JWT_SECRET!);
+    const verified = verifyToken(token);
+
     if (!verified) {
       res.status(401);
       throw new Error('Not authorized, Invalid token!');
@@ -77,4 +79,33 @@ const isStaffMember = asyncHandler(
   }
 );
 
-export { notFound, errorHandler, loginRequired, isStaffMember };
+const isPostOwner = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const authorId = (req as CustomAuthorReq).authorId;
+    const postId = req.params['postId'];
+
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+
+    if (!post) {
+      res.status(404);
+      throw new Error('Post not Found in the Database!');
+    }
+
+    const author = await prisma.author.findUnique({
+      where: { id: authorId },
+      select: { id: true },
+    });
+
+    if (post.authorId !== author.id) {
+      res.status(401);
+      throw new Error('You are not the creator of the post');
+    }
+
+    (req as PostReq).post = post;
+    next();
+  }
+);
+
+export { notFound, errorHandler, loginRequired, isStaffMember, isPostOwner };

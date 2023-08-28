@@ -8,8 +8,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && node server/index.js",
-    "dev": "concurrently \"tsc -w\" \"nodemon server/index.js\""
+    "start": "npm run build && node dist/index.js",
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\""
   },
   "keywords": [],
   "dependencies": {
