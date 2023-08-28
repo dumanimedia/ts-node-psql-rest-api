@@ -7,6 +7,8 @@
   "private": false,
   "type": "module",
   "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node server/index.js",
     "dev": "concurrently \"tsc -w\" \"nodemon server/index.js\""
   },
   "keywords": [],
