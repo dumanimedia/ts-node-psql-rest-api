@@ -1,9 +1,13 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
-import bcrypt from 'bcryptjs';
 
 import { prisma } from '../lib/prismaDb.js';
-import { generateToken } from '../lib/generateToken.js';
+
+import {
+  generateToken,
+  hashPassword,
+  checkPassword,
+} from '../utils/helpers.js';
 import { CustomUserReq } from '../utils/types.js';
 
 const fetchAllUsers = asyncHandler(async (req: Request, res: Response) => {
@@ -50,8 +54,7 @@ const signUpAUser = asyncHandler(async (req: Request, res: Response) => {
   }
 
   try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await hashPassword(password);
 
     const newUser = await prisma.user.create({
       data: { email, username, password: hashedPassword },
@@ -90,7 +93,8 @@ const signInAUser = asyncHandler(async (req: Request, res: Response) => {
     throw new Error('Invalid user credentials!');
   }
 
-  const passwordsMatch = await bcrypt.compare(password, user.password);
+  const passwordsMatch = await checkPassword(password, user.password);
+
   if (passwordsMatch === false) {
     res.status(400);
     throw new Error('Invalid user credentials!');
@@ -155,8 +159,7 @@ const updateAUserById = asyncHandler(async (req: Request, res: Response) => {
     updateInfo.age = req.body.age || updateInfo.age;
 
     if (req.body.password) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(req.body.password, salt);
+      const hashedPassword = await hashPassword(req.body.password);
       updateInfo.password = req.body.password
         ? hashedPassword
         : updateInfo.password;

@@ -15,7 +15,11 @@ const getAuthorById = asyncHandler(async (req, res) => {
     const authorId = req.params['authorId'];
     const author = await prisma.author.findUnique({
         where: { id: authorId },
-        include: { user: { select: { username: true } } },
+        select: {
+            id: true,
+            bio: true,
+            user: { select: { id: true, username: true } },
+        },
     });
     if (!author) {
         res.status(404);

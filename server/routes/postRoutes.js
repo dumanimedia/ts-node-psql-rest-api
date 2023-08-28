@@ -3,9 +3,9 @@ import { fetchAllPosts, getPostById, createAPost, updateAPost, } from '../contro
 import { loginRequired, isStaffMember } from '../utils/middleware.js';
 const router = express.Router();
 router.get('/', fetchAllPosts);
+router.post('/new', [loginRequired, isStaffMember], createAPost);
 router
     .route('/:postId')
     .get(getPostById)
     .patch([loginRequired, isStaffMember], updateAPost);
-router.post('/new', [loginRequired, isStaffMember], createAPost);
 export default router;

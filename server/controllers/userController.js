@@ -1,7 +1,6 @@
 import asyncHandler from 'express-async-handler';
-import bcrypt from 'bcryptjs';
 import { prisma } from '../lib/prismaDb.js';
-import { generateToken } from '../lib/generateToken.js';
+import { generateToken, hashPassword, checkPassword, } from '../utils/helpers.js';
 const fetchAllUsers = asyncHandler(async (req, res) => {
     const page = req.query['page'] ? Number(req.query['page']) : 1;
     const limit = req.query['limit'] ? Number(req.query['limit']) : 4;
@@ -38,8 +37,7 @@ const signUpAUser = asyncHandler(async (req, res) => {
         throw new Error('User with the credentials found in the DB!');
     }
     try {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await hashPassword(password);
         const newUser = await prisma.user.create({
             data: { email, username, password: hashedPassword },
             include: { author: { select: { id: true } } },
@@ -70,7 +68,7 @@ const signInAUser = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error('Invalid user credentials!');
     }
-    const passwordsMatch = await bcrypt.compare(password, user.password);
+    const passwordsMatch = await checkPassword(password, user.password);
     if (passwordsMatch === false) {
         res.status(400);
         throw new Error('Invalid user credentials!');
@@ -127,8 +125,7 @@ const updateAUserById = asyncHandler(async (req, res) => {
         updateInfo.maidenName = req.body.maidenName || updateInfo.maidenName;
         updateInfo.age = req.body.age || updateInfo.age;
         if (req.body.password) {
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(req.body.password, salt);
+            const hashedPassword = await hashPassword(req.body.password);
             updateInfo.password = req.body.password
                 ? hashedPassword
                 : updateInfo.password;

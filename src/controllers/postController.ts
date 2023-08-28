@@ -87,7 +87,24 @@ const updateAPost = asyncHandler(async (req: Request, res: Response) => {
     throw new Error('You are not the creator of the post');
   }
 
-  res.json('Update the post then');
+  type Post = Partial<
+    Omit<typeof post, 'authorId' | 'createdAt' | 'updatedAt' | 'id'>
+  >;
+
+  let updateInfo: Post = {};
+  updateInfo.title = req.body.title || post.title;
+  updateInfo.description = req.body.description || post.description;
+
+  try {
+    const updatedPost = await prisma.post.update({
+      where: { id: postId },
+      data: updateInfo,
+    });
+
+    res.json(updatedPost);
+  } catch (err: unknown) {
+    throw new Error((err as Error).message);
+  }
 });
 
 export { fetchAllPosts, getPostById, createAPost, updateAPost };
