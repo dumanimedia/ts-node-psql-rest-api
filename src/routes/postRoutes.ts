@@ -5,6 +5,7 @@ import {
   getPostById,
   createAPost,
   updateAPost,
+  deleteAPost,
 } from '../controllers/postController.js';
 import {
   loginRequired,
@@ -13,11 +14,14 @@ import {
 } from '../utils/middleware.js';
 const router = express.Router();
 
-router.get('/', fetchAllPosts);
-router.post('/new', [loginRequired, isStaffMember], createAPost);
+router
+  .get('/', fetchAllPosts)
+  .post('/new', [loginRequired, isStaffMember], createAPost);
+
 router
   .route('/:postId')
   .get(getPostById)
-  .patch([loginRequired, isStaffMember, isPostOwner], updateAPost);
+  .patch([loginRequired, isStaffMember, isPostOwner], updateAPost)
+  .delete([loginRequired, isStaffMember, isPostOwner], deleteAPost);
 
 export default router;

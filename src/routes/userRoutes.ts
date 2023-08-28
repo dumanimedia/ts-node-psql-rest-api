@@ -14,8 +14,11 @@ import { loginRequired } from '../utils/middleware.js';
 const router = express.Router();
 
 router.route('/').get(fetchAllUsers).post(signUpAUser);
-router.post('/login/', signInAUser);
-router.post('/logout/', loginRequired, signOutAUser);
+
+router
+  .post('/login/', signInAUser)
+  .post('/logout/', loginRequired, signOutAUser);
+
 router
   .route('/profile')
   .get(loginRequired, getAUserById)
