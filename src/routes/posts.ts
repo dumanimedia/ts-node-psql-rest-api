@@ -6,6 +6,8 @@ import {
   createAPost,
   updateAPost,
   deleteAPost,
+  getPostComments,
+  commentOnAPost,
 } from '../controllers/posts.js';
 import {
   loginRequired,
@@ -23,5 +25,10 @@ router
   .get(getPostById)
   .patch([loginRequired, isStaffMember, isPostOwner], updateAPost)
   .delete([loginRequired, isStaffMember, isPostOwner], deleteAPost);
+
+router
+  .route('/:postId/comments')
+  .get(getPostComments)
+  .post(loginRequired, commentOnAPost);
 
 export default router;

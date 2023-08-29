@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import { prisma } from '../lib/prismaDb.js';
-import { CustomAuthorReq, PostReq } from '../utils/types.js';
+import { CustomAuthorReq, CustomUserReq, PostReq } from '../utils/types.js';
 
 const fetchAllPosts = asyncHandler(async (req: Request, res: Response) => {
   const page = req.query['page'] ? Number(req.query['page']) : 1;
@@ -12,6 +12,13 @@ const fetchAllPosts = asyncHandler(async (req: Request, res: Response) => {
   const posts = await prisma.post.findMany({
     take: limit,
     skip: (page - 1) * limit,
+    select: {
+      title: true,
+      description: true,
+      authorId: true,
+      createdAt: true,
+      comments: { select: { id: true } },
+    },
   });
 
   const pageCount = Math.ceil(postsCount / limit);
@@ -24,6 +31,19 @@ const getPostById = asyncHandler(async (req: Request, res: Response) => {
 
   const post = await prisma.post.findUnique({
     where: { id: postId },
+    select: {
+      title: true,
+      description: true,
+      authorId: true,
+      createdAt: true,
+      comments: {
+        select: {
+          message: true,
+          user: { select: { username: true } },
+          createdAt: true,
+        },
+      },
+    },
   });
 
   if (!post) {
@@ -31,7 +51,7 @@ const getPostById = asyncHandler(async (req: Request, res: Response) => {
     throw new Error(`Post not found!`);
   }
 
-  res.json({ post });
+  res.json(post);
 });
 
 const createAPost = asyncHandler(async (req: Request, res: Response) => {
@@ -99,4 +119,80 @@ const deleteAPost = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
-export { fetchAllPosts, getPostById, createAPost, updateAPost, deleteAPost };
+const getPostComments = asyncHandler(async (req: Request, res: Response) => {
+  const postId = req.params['postId'];
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: {
+      comments: {
+        select: {
+          message: true,
+          user: { select: { username: true } },
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  if (!post) {
+    res.status(404);
+    throw new Error('Post with the given ID Not found!');
+  }
+
+  res.json(post.comments);
+});
+
+const commentOnAPost = asyncHandler(async (req: Request, res: Response) => {
+  const { message } = req.body;
+  const userId = (req as CustomUserReq).userId;
+  const postId = req.params['postId'];
+
+  if (!message) {
+    res.status(400);
+    throw new Error('All fields are required!');
+  }
+
+  const alreadyCommented = await prisma.post.findUnique({
+    where: { id: postId, comments: { some: { userId } } },
+    select: { id: true, comments: { select: { userId: true } } },
+  });
+
+  if (alreadyCommented) {
+    res.status(400);
+    throw new Error('Post already commented on by the user!');
+  }
+
+  const { comments } = await prisma.post.update({
+    where: { id: postId },
+    data: {
+      comments: {
+        create: {
+          message,
+          userId,
+        },
+      },
+    },
+    select: {
+      comments: {
+        select: {
+          message: true,
+          user: { select: { username: true } },
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  res.json(comments);
+});
+
+export {
+  fetchAllPosts,
+  getPostById,
+  createAPost,
+  updateAPost,
+  deleteAPost,
+  getPostComments,
+  commentOnAPost,
+};
