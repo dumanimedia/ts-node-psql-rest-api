@@ -8,6 +8,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
+    "postinstall": "prisma generate",
     "start": "npm run build && node dist/index.js",
     "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\""
   },
