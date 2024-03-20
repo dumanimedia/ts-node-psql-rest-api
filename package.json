@@ -14,7 +14,6 @@
   "scripts": {
     "dev": "nodemon",
     "setup:server": "npx tsc",
-    "postinstall": "pnpm setup:server",
     "start": "pnpm setup:server && node ./build/index.js"
   },
   "devDependencies": {
