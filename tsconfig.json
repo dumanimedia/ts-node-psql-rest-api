@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
-    "strict": true,
-    "baseUrl": "src",
-    "outDir": "dist",
-    "module": "NodeNext",
-    "skipLibCheck": true,
-    "noImplicitAny": true,
+    "module": "nodeNext",
     "esModuleInterop": true,
+    "moduleResolution": "nodeNext",
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "target": "esNext",
+    "baseUrl": ".",
+    "outDir": "dist",
     "paths": {
-      "*": ["node_modules/*", "./src/utils/types.ts"]
+      "*": ["node_modules/*", "src/types/*"]
     }
   },
   "include": ["./src/**/*"]
