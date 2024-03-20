@@ -1,7 +1,7 @@
 {
-  "name": "ts-node",
+  "name": "ts-node-psql-rest-api",
   "version": "1.0.0",
-  "main": "build/index.js",
+  "main": "dist/index.js",
   "author": "dumani <dumanimedia@gmail.com>",
   "license": "MIT",
   "private": false,
@@ -14,7 +14,7 @@
   "scripts": {
     "dev": "nodemon",
     "setup:server": "npx tsc",
-    "start": "pnpm setup:server && node ./build/index.js"
+    "start": "pnpm setup:server && node ./dist/index.js"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
