@@ -9,7 +9,7 @@
   "keywords": [],
   "scripts": {
     "build": "tsc",
-    "postinstall": "pnpm build",
+    "postinstall": "pnpm i && pnpm build",
     "start": "npm run build && node dist/index.js",
     "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\""
   },
