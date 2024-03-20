@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-import HomeRoutes from "./routes/homeRoutes.js";
-import { errorHandler, notFound } from "./utils/middleware.js";
+import HomeRoutes from "./routes/homeRoutes";
+import { errorHandler, notFound } from "./utils/middleware";
 
 const server = express();
 const PORT = process.env.PORT ?? 8000;
