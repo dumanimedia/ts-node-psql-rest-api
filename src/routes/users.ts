@@ -1,28 +1,23 @@
-import express from 'express';
+import express from "express";
 
-import {
-  fetchAllUsers,
-  signUpAUser,
-  signInAUser,
-  signOutAUser,
-  getAUserById,
-  updateAUserById,
-  deleteAUserById,
-} from '../controllers/users.js';
-import { loginRequired } from '../utils/middleware.js';
+import usersControllers from "../controllers/users";
+import { loginRequired } from "../utils/middleware";
 
 const router = express.Router();
 
-router.route('/').get(fetchAllUsers).post(signUpAUser);
+router
+  .route("/")
+  .get(usersControllers.fetchAllUsers)
+  .post(usersControllers.signUpAUser);
 
 router
-  .post('/login/', signInAUser)
-  .post('/logout/', loginRequired, signOutAUser);
+  .post("/login/", usersControllers.signInAUser)
+  .post("/logout/", loginRequired, usersControllers.signOutAUser);
 
 router
-  .route('/profile')
-  .get(loginRequired, getAUserById)
-  .patch(loginRequired, updateAUserById)
-  .delete(loginRequired, deleteAUserById);
+  .route("/profile")
+  .get(loginRequired, usersControllers.getAUserByCookie)
+  .patch(loginRequired, usersControllers.updateAUserByCookie)
+  .delete(loginRequired, usersControllers.deleteAUserByCookie);
 
 export default router;
