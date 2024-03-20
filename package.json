@@ -7,13 +7,13 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/dumanimedia/ts-node"
+    "url": "https://github.com/dumanimedia/ts-node-psql-rest-api"
   },
   "keywords": [],
   "scripts": {
     "dev": "nodemon",
-    "build": "npx tsc && pnpm migration:push",
-    "start": "pnpm build && node ./build/index.js",
+    "setup:server": "npx tsc && pnpm migration:push",
+    "start": "pnpm setup:server && node ./build/index.js",
     "migration:generate": "drizzle-kit generate:pg --config=drizzle.config.ts",
     "migration:push": "npx tsx -r dotenv/config ./src/db/migrate.ts",
     "migrate": "pnpm migration:generate && pnpm migration:push",
