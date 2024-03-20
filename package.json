@@ -10,9 +10,11 @@
     "url": "https://github.com/dumanimedia/ts-node-psql-rest-api"
   },
   "keywords": [],
+  "packageManager": "pnpm@8.15.1",
   "scripts": {
     "dev": "nodemon",
     "setup:server": "npx tsc && pnpm migration:push",
+    "build": "pnpm i && pnpm start",
     "start": "pnpm setup:server && node ./build/index.js",
     "migration:generate": "drizzle-kit generate:pg --config=drizzle.config.ts",
     "migration:push": "npx tsx -r dotenv/config ./src/db/migrate.ts",
