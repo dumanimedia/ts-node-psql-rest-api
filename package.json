@@ -1,5 +1,5 @@
 {
-  "name": "mern-project",
+  "name": "ts-node-psql-rest-api",
   "version": "1.0.0",
   "author": "Dumani Media",
   "description": "MERN Project v1",
@@ -9,6 +9,7 @@
   "keywords": [],
   "scripts": {
     "build": "tsc",
+    "postinstall": "pnpm build",
     "start": "npm run build && node dist/index.js",
     "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\""
   },
