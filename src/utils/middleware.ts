@@ -1,5 +1,7 @@
 import asyncHandler from "express-async-handler";
 import { Request, Response, NextFunction } from "express";
+import { verifyToken } from "./helpers";
+import { CustomUserReq, NewJwtPayload } from "./types";
 
 const notFound = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -24,4 +26,27 @@ async function errorHandler(
   });
 }
 
-export { notFound, errorHandler };
+const loginRequired = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const tokenName = process.env.TOKEN_NAME || "ts-node";
+    const token = req.cookies[tokenName];
+
+    if (token === undefined || token === "") {
+      res.status(401);
+      throw new Error("Not authorized, No token!");
+    }
+
+    const verified = verifyToken(token);
+
+    if (!verified) {
+      res.status(401);
+      throw new Error("Not authorized, Invalid token!");
+    }
+
+    (req as CustomUserReq).userId = (verified as NewJwtPayload).id;
+
+    next();
+  }
+);
+
+export { notFound, errorHandler, loginRequired };
